@@ -1,640 +1,293 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>💖 Akhila — Valentine Surprise</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For Akhila ❤️</title>
 
-  <style>
-    :root{
-      --card: rgba(255,255,255,.12);
-      --card2: rgba(255,255,255,.18);
-      --text: rgba(255,255,255,.95);
-      --muted: rgba(255,255,255,.78);
-      --stroke: rgba(255,255,255,.18);
-      --shadow: 0 20px 60px rgba(0,0,0,.35);
-      --pink: #ff4d6d;
-      --blue: #2f80ed;
-      --gold:#ffd166;
-      --whiteBtn: rgba(255,255,255,.92);
-    }
+<style>
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  color:white;
+  overflow:hidden;
 
-    *{box-sizing:border-box}
+  /* CLEAR BACKGROUND (no heavy dark layer) */
+  background:
+    linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.45)),
+    url("./couple.jpg");
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  background-attachment:fixed;
+}
 
-    body{
-      margin:0;
-      min-height:100vh;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-      color: var(--text);
-      overflow:hidden;
+/* Fireworks canvas */
+canvas{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  z-index:5;
+  pointer-events:none;
+}
 
-      /* ✅ Background couple picture on ALL pages */
-      background:
-        linear-gradient(rgba(0,0,0,0.68), rgba(0,0,0,0.78)),
-        url("./couple.jpg") center/cover no-repeat fixed;
-    }
+/* Content */
+.container{
+  position:relative;
+  z-index:10;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
+}
 
-    /* ✅ Fireworks canvas (transparent, sits on top) */
-    canvas#fx{
-      position:fixed; inset:0;
-      width:100%; height:100%;
-      display:block;
-      z-index:5;
-      filter: saturate(1.1);
-      pointer-events:none;
-    }
+.card{
+  width:90%;
+  max-width:700px;
+  background:rgba(255,255,255,0.12);
+  backdrop-filter:blur(10px);
+  border-radius:20px;
+  padding:20px;
+  box-shadow:0 20px 50px rgba(0,0,0,0.4);
+}
 
-    /* ✅ Floating hearts layer */
-    .float{
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      z-index:6;
-      opacity:.85;
-      mask-image: radial-gradient(circle at center, black 55%, transparent 85%);
-    }
-    .heart{
-      position:absolute;
-      font-size:18px;
-      opacity:0;
-      animation: rise 6s linear infinite;
-    }
-    @keyframes rise{
-      0%{transform: translateY(20px) scale(.9); opacity:0}
-      10%{opacity:.95}
-      100%{transform: translateY(-120vh) scale(1.25); opacity:0}
-    }
+/* Header */
+.header{
+  display:flex;
+  gap:15px;
+  align-items:center;
+  border-bottom:1px solid rgba(255,255,255,0.2);
+  padding-bottom:15px;
+}
 
-    /* Content wrapper */
-    .wrap{
-      position:relative;
-      z-index:7;
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:18px;
-    }
+.photo{
+  width:80px;
+  height:80px;
+  border-radius:15px;
+  overflow:hidden;
+}
 
-    .card{
-      width:min(820px, 100%);
-      background: var(--card);
-      border:1px solid var(--stroke);
-      border-radius:22px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
-      overflow:hidden;
-    }
+.photo img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
 
-    .top{
-      display:flex;
-      gap:16px;
-      padding:18px;
-      border-bottom:1px solid var(--stroke);
-      background: linear-gradient(to bottom, rgba(255,255,255,.08), transparent);
-      align-items:center;
-    }
+/* Screens */
+.screen{display:none;}
+.active{display:block;}
 
-    /* ✅ Small space shows the same photo */
-    .photo{
-      width:96px; height:96px;
-      border-radius:18px;
-      border:1px solid var(--stroke);
-      overflow:hidden;
-      flex: 0 0 auto;
-      box-shadow: 0 8px 24px rgba(0,0,0,.25);
-      background: rgba(255,255,255,.08);
-    }
-    .photo img{
-      width:100%; height:100%;
-      object-fit:cover;
-      display:block;
-    }
+button{
+  padding:12px 18px;
+  border:none;
+  border-radius:10px;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+  margin:6px;
+}
 
-    .title{flex:1; min-width:0}
-    .title h1{
-      margin:0;
-      font-size:22px;
-      letter-spacing:.2px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .title p{
-      margin:6px 0 0;
-      color: var(--muted);
-      font-size:13px;
-    }
+.primary{background:#ff4d6d;color:white;}
+.blue{background:#2f80ed;color:white;}
+.white{background:white;color:black;}
+.gold{background:#ffd166;color:black;}
 
-    .content{padding:18px}
-
-    .screen{display:none; animation: fadeIn .35s ease}
-    .screen.active{display:block}
-    @keyframes fadeIn{
-      from{opacity:0; transform: translateY(4px)}
-      to{opacity:1; transform: translateY(0)}
-    }
-
-    .big{
-      font-size:28px;
-      margin:6px 0 8px;
-      letter-spacing:.2px;
-    }
-    .sub{
-      color: var(--muted);
-      margin:0 0 14px;
-      line-height:1.45;
-    }
-
-    .glass{
-      background: var(--card2);
-      border:1px solid var(--stroke);
-      border-radius:18px;
-      padding:14px;
-    }
-
-    .type{
-      font-size:18px;
-      line-height:1.45;
-      margin:0;
-    }
-    .cursor{
-      display:inline-block;
-      width:10px;
-      margin-left:2px;
-      opacity:.9;
-      animation: blink 1s infinite;
-    }
-    @keyframes blink{0%,49%{opacity:0} 50%,100%{opacity:1}}
-
-    .row{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      margin-top:14px;
-    }
-
-    button{
-      border:0;
-      cursor:pointer;
-      padding:12px 16px;
-      border-radius:14px;
-      font-weight:900;
-      font-size:15px;
-      transition: transform .12s ease, opacity .12s ease;
-    }
-    button:hover{transform: translateY(-1px)}
-    button:active{transform: translateY(0); opacity:.92}
-
-    .btn-primary{background: var(--pink); color:white}
-    .btn-blue{background: var(--blue); color:white}
-    .btn-ghost{background: var(--whiteBtn); color:#111}
-    .btn-gold{background: var(--gold); color:#111}
-
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 10px;
-      border-radius:999px;
-      background: rgba(255,255,255,.10);
-      border:1px solid var(--stroke);
-      color: var(--muted);
-      font-size:12px;
-      margin-top:10px;
-    }
-
-    .choices{
-      display:grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap:12px;
-      margin-top:14px;
-    }
-
-    @media (max-width:600px){
-      .big{font-size:24px}
-      .type{font-size:17px}
-      .choices{grid-template-columns: 1fr}
-      .photo{width:86px;height:86px}
-    }
-
-    .finalBox{
-      margin-top:14px;
-      background: linear-gradient(135deg, rgba(255,77,109,.18), rgba(47,128,237,.14));
-      border:1px solid var(--stroke);
-      border-radius:18px;
-      padding:14px;
-    }
-
-    .small{
-      font-size:12px;
-      color: var(--muted);
-      margin-top:12px;
-      line-height:1.4;
-    }
-
-    /* ✅ Start overlay */
-    .startOverlay{
-      position:fixed; inset:0;
-      z-index:9999;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:18px;
-      background: rgba(0,0,0,.72);
-      backdrop-filter: blur(8px);
-    }
-    .startCard{
-      width:min(560px, 100%);
-      border-radius:22px;
-      border:1px solid rgba(255,255,255,.20);
-      box-shadow: 0 20px 60px rgba(0,0,0,.45);
-      background: rgba(255,255,255,.10);
-      padding:20px;
-      text-align:center;
-    }
-    .startCard h2{margin:6px 0 8px; font-size:26px}
-    .startCard p{margin:0; color:var(--muted); line-height:1.5}
-  </style>
+.startOverlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:100;
+}
+</style>
 </head>
 
 <body>
-  <canvas id="fx"></canvas>
-  <div class="float" id="float"></div>
 
-  <!-- ✅ Music -->
-  <audio id="bgMusic" preload="auto" loop>
-    <source src="family.mp3" type="audio/mpeg">
-  </audio>
+<canvas id="fireworks"></canvas>
 
-  <!-- ✅ Tap-to-start -->
-  <div class="startOverlay" id="startOverlay">
-    <div class="startCard">
-      <h2>Hey Akhila Reddy Macha ❤️</h2>
-      <p>Tap to start your surprise 🎆🎵</p>
-      <div class="row" style="justify-content:center;">
-        <button class="btn-primary" id="startBtn">Start the surprise ✨</button>
-      </div>
-      <div class="small" style="text-align:center;">Tip: Best in full screen.</div>
-    </div>
+<audio id="music" loop>
+  <source src="family.mp3" type="audio/mpeg">
+</audio>
+
+<div class="startOverlay" id="startScreen">
+  <div class="card" style="text-align:center;">
+    <h2>Hey Akhila ❤️</h2>
+    <p>Tap to start your surprise</p>
+    <button class="primary" onclick="start()">Start</button>
   </div>
+</div>
 
-  <div class="wrap">
-    <div class="card">
-      <div class="top">
-        <div class="photo">
-          <img src="./couple.jpg" alt="Our Photo">
-        </div>
-        <div class="title">
-          <h1>Hey Akhila Reddy Macha 💖</h1>
-          <p>Made with ❤️ by Ganesh Surya Reddy Macha</p>
-        </div>
-      </div>
+<div class="container">
+<div class="card">
 
-      <div class="content">
-
-        <!-- Opening -->
-        <section class="screen active" id="s_open">
-          <div class="big">A little celebration for you 🎆</div>
-          <p class="sub">Just watch for a few seconds… wishes will pop up ❤️</p>
-
-          <div class="glass">
-            <p class="type"><span id="typeText"></span><span class="cursor">|</span></p>
-          </div>
-
-          <div class="pill">⏳ Auto next in <span id="countdown">20</span>s</div>
-          <div class="small">Music is playing in the background 🎵</div>
-        </section>
-
-        <!-- Congrats -->
-        <section class="screen" id="s_congrats">
-          <div class="big">Congratulations Akhila Reddy Macha! 🎉🥳</div>
-          <p class="sub">
-            You came to the USA all by yourself, with courage, determination, and a dream.<br/>
-            I’ve seen your struggles, your late nights, your hard work, and your never-give-up attitude.<br/><br/>
-            Today, you achieved your goal and became a <b>Workday HRIS Analyst</b> completely on your own.<br/>
-            I’m incredibly proud of you ❤️<br/>
-            This is just the beginning of your amazing journey — you deserve every success and happiness.
-          </p>
-
-          <div class="row">
-            <button class="btn-blue" id="to_valentine">Next 💌</button>
-          </div>
-        </section>
-
-        <!-- Valentine question -->
-        <section class="screen" id="s_valentineQ">
-          <div class="big">Akhila, will you be my Valentine? 💘</div>
-          <p class="sub">Answer honestly… but remember, I love you anyway 😄❤️</p>
-
-          <div class="row">
-            <button class="btn-primary" id="val_yes">Yes 😍</button>
-            <button class="btn-ghost" id="val_no">No 🙈</button>
-          </div>
-        </section>
-
-        <!-- YES celebration -->
-        <section class="screen" id="s_yesCelebrate">
-          <div class="big">Yessss!!! 🎆💖</div>
-          <div class="finalBox">
-            <div style="font-weight:900; font-size:20px; line-height:1.35;">
-              Nak telusu ey potti neku nenu ante istham ani 😄<br/>
-              I love Youuuuuu ❤️❤️❤️
-            </div>
-          </div>
-          <div class="row">
-            <button class="btn-primary" id="yes_to_gift">Do you want to see the next surprise? 🎁</button>
-          </div>
-        </section>
-
-        <!-- NO message -->
-        <section class="screen" id="s_noMessage">
-          <div class="big">Hehe 😄</div>
-          <div class="finalBox">
-            <div style="font-weight:900; font-size:20px; line-height:1.35;">
-              Nuvu no chepina I love you ra potti ❤️
-            </div>
-          </div>
-          <div class="row">
-            <button class="btn-primary" id="no_to_gift">Do you want to see the next surprise? 🎁</button>
-          </div>
-        </section>
-
-        <!-- Gift selection -->
-        <section class="screen" id="s_giftPick">
-          <div class="big">Gift Selection 🎁</div>
-          <p class="sub">Choose any option… surprises will reveal in order 😄</p>
-
-          <div class="choices">
-            <button class="btn-gold giftPick">Option 1</button>
-            <button class="btn-gold giftPick">Option 2</button>
-            <button class="btn-gold giftPick">Option 3</button>
-          </div>
-        </section>
-
-        <!-- Dinner -->
-        <section class="screen" id="s_dinner">
-          <div class="big">Surprise #1 🍽️</div>
-          <div class="finalBox">
-            <div style="font-weight:900; font-size:20px;">Dinner date ❤️</div>
-            <div style="margin-top:8px; color:var(--muted);">A special dinner to celebrate you and us.</div>
-          </div>
-          <div class="row"><button class="btn-primary" id="to_shoes">Next Surprise ✨</button></div>
-        </section>
-
-        <!-- Shoes -->
-        <section class="screen" id="s_shoes">
-          <div class="big">Surprise #2 👟</div>
-          <div class="finalBox">
-            <div style="font-weight:900; font-size:20px;">On Cloud Shoes 😍</div>
-            <div style="margin-top:8px; color:var(--muted);">For all the beautiful journeys ahead together.</div>
-          </div>
-          <div class="row"><button class="btn-primary" id="to_ipad">Next Surprise ✨</button></div>
-        </section>
-
-        <!-- iPad -->
-        <section class="screen" id="s_ipad">
-          <div class="big">Final Surprise 🍎✨</div>
-          <div class="finalBox">
-            <div style="font-weight:900; font-size:20px;">iPad Pro 🎁</div>
-            <div style="margin-top:8px; color:var(--muted);">
-              Because you deserve the best for your dreams, creativity, and future ❤️
-            </div>
-          </div>
-          <div class="row"><button class="btn-blue" id="to_final">Final Message 💖</button></div>
-        </section>
-
-        <!-- Final -->
-        <section class="screen" id="s_final">
-          <div class="big">Happy Valentine’s Day Akhila ❤️🎆</div>
-          <div class="finalBox">
-            <div style="font-weight:900; font-size:20px;">Surprise… we are going with <b>ALL THE ABOVE</b> 😄✅</div>
-            <div style="margin-top:10px; color:var(--muted); line-height:1.6;">
-              Dinner 🍽️ + On Cloud Shoes 👟 + iPad Pro 🍎<br/>
-              Because you deserve everything and more ❤️
-            </div>
-            <div style="margin-top:12px; font-weight:900;">— Love, Ganesh Surya Reddy Macha</div>
-          </div>
-          <div class="small">Keep this page open… enjoy the fireworks 🎆</div>
-        </section>
-
-      </div>
-    </div>
+<div class="header">
+  <div class="photo">
+    <img src="./couple.jpg">
   </div>
+  <div>
+    <h3>Hey Akhila Reddy Macha 💖</h3>
+    <small>Made with ❤️ by Ganesh Surya Reddy Macha</small>
+  </div>
+</div>
 
-  <script>
-    /***************
-     * Screen manager
-     ***************/
-    const screenIds = [
-      "s_open","s_congrats","s_valentineQ","s_yesCelebrate","s_noMessage",
-      "s_giftPick","s_dinner","s_shoes","s_ipad","s_final"
-    ];
-    function show(id){
-      for(const sid of screenIds){
-        document.getElementById(sid).classList.remove("active");
-      }
-      document.getElementById(id).classList.add("active");
+<!-- Screen 1 -->
+<div id="s1" class="screen">
+<h2>A little celebration for you 🎆</h2>
+<p id="wishText"></p>
+<p>Next in <span id="timer">20</span> sec</p>
+</div>
 
-      if (id === "s_yesCelebrate" || id === "s_final") {
-        celebrationMode = true;
-        popHearts(18);
-        bigBurst();
-      } else {
-        celebrationMode = false;
-      }
-    }
+<!-- Screen 2 -->
+<div id="s2" class="screen">
+<h2>Congratulations Akhila! 🎉</h2>
+<p>
+You came to USA by yourself and achieved everything on your own.<br>
+Today you became a <b>Workday HRIS Analyst</b>.<br>
+I am so proud of you ❤️
+</p>
+<button class="blue" onclick="show('s3')">Next</button>
+</div>
 
-    /***************
-     * Music start (tap required)
-     ***************/
-    const music = document.getElementById("bgMusic");
-    const startOverlay = document.getElementById("startOverlay");
-    document.getElementById("startBtn").addEventListener("click", async () => {
-      startOverlay.style.display = "none";
-      try { await music.play(); } catch(e) {}
-      popHearts(10);
-      startOpeningFlow();
-    });
+<!-- Screen 3 -->
+<div id="s3" class="screen">
+<h2>Will you be my Valentine? 💘</h2>
+<button class="primary" onclick="showYes()">Yes</button>
+<button class="white" onclick="showNo()">No</button>
+</div>
 
-    /***************
-     * Typewriter wishes
-     ***************/
-    const lines = [
-      "To the most special person in my life ❤️",
-      "I’m so proud of you ✨",
-      "You inspire me every single day 🌟",
-      "Today is for you… and only you 💖"
-    ];
-    const typeText = document.getElementById("typeText");
-    let lineIndex=0, charIndex=0, typing=true, typeTimer=null;
+<!-- YES -->
+<div id="yesScreen" class="screen">
+<h2>🎆🎆🎆</h2>
+<p>Nak telusu ey potti neku nenu ante istham ani 😄<br>
+I love Youuuuuu ❤️❤️❤️</p>
+<button class="primary" onclick="show('giftSelect')">
+See next surprise
+</button>
+</div>
 
-    function startTypewriter(){
-      lineIndex=0; charIndex=0; typing=true;
-      typeText.textContent="";
-      if(typeTimer) clearTimeout(typeTimer);
+<!-- NO -->
+<div id="noScreen" class="screen">
+<h2>😄</h2>
+<p>Nuvu no chepina I love you ra potti ❤️</p>
+<button class="primary" onclick="show('giftSelect')">
+See next surprise
+</button>
+</div>
 
-      const tick=()=>{
-        const current=lines[lineIndex];
-        if(typing){
-          typeText.textContent=current.slice(0,charIndex++);
-          if(charIndex>current.length){
-            typing=false;
-            typeTimer=setTimeout(tick,650);
-            return;
-          }
-        }else{
-          lineIndex++;
-          if(lineIndex>=lines.length) return;
-          charIndex=0; typing=true;
-        }
-        typeTimer=setTimeout(tick, typing?40:230);
-      };
-      tick();
-    }
+<!-- Gifts -->
+<div id="giftSelect" class="screen meansscreen">
+<h2>Choose any option 🎁</h2>
+<button class="gold" onclick="show('dinner')">Option 1</button>
+<button class="gold" onclick="show('dinner')">Option 2</button>
+<button class="gold" onclick="show('dinner')">Option 3</button>
+</div>
 
-    /***************
-     * 20 sec auto transition
-     ***************/
-    let countdownTimer=null;
-    function startOpeningFlow(){
-      show("s_open");
-      startTypewriter();
+<div id="dinner" class="screen">
+<h2>Dinner 🍽️</h2>
+<button class="primary" onclick="show('shoes')">Next</button>
+</div>
 
-      let secs=20;
-      const cd=document.getElementById("countdown");
-      cd.textContent=secs;
+<div id="shoes" class="screen">
+<h2>On Cloud Shoes 👟</h2>
+<button class="primary" onclick="show('ipad')">Next</button>
+</div>
 
-      if(countdownTimer) clearInterval(countdownTimer);
-      countdownTimer=setInterval(()=>{
-        secs--;
-        cd.textContent=secs;
-        if(secs<=0){
-          clearInterval(countdownTimer);
-          show("s_congrats");
-          popHearts(14);
-        }
-      },1000);
-    }
+<div id="ipad" class="screen">
+<h2>iPad Pro 🍎</h2>
+<button class="blue" onclick="show('final')">Final</button>
+</div>
 
-    /***************
-     * Navigation
-     ***************/
-    document.getElementById("to_valentine").addEventListener("click", ()=>{ show("s_valentineQ"); popHearts(10); });
-    document.getElementById("val_yes").addEventListener("click", ()=>{ show("s_yesCelebrate"); popHearts(16); bigBurst(); });
-    document.getElementById("val_no").addEventListener("click", ()=>{ show("s_noMessage"); popHearts(10); });
+<div id="final" class="screen">
+<h2>Happy Valentine’s Day ❤️</h2>
+<p>Dinner + Shoes + iPad Pro<br>
+Because you deserve everything ❤️</p>
+</div>
 
-    document.getElementById("yes_to_gift").addEventListener("click", ()=>{ show("s_giftPick"); popHearts(10); });
-    document.getElementById("no_to_gift").addEventListener("click", ()=>{ show("s_giftPick"); popHearts(10); });
+</div>
+</div>
 
-    document.querySelectorAll(".giftPick").forEach(btn=>{
-      btn.addEventListener("click", ()=>{ show("s_dinner"); popHearts(12); });
-    });
+<script>
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
 
-    document.getElementById("to_shoes").addEventListener("click", ()=>{ show("s_shoes"); popHearts(12); });
-    document.getElementById("to_ipad").addEventListener("click", ()=>{ show("s_ipad"); popHearts(12); });
-    document.getElementById("to_final").addEventListener("click", ()=>{ show("s_final"); popHearts(20); bigBurst(); });
+function start(){
+  document.getElementById("startScreen").style.display="none";
+  document.getElementById("music").play();
+  show("s1");
+  startTimer();
+}
 
-    /***************
-     * Floating hearts
-     ***************/
-    const float=document.getElementById("float");
-    function popHearts(n=10){
-      for(let i=0;i<n;i++){
-        const el=document.createElement("div");
-        el.className="heart";
-        el.textContent=["💖","💘","💝","💕","💗","✨"][Math.floor(Math.random()*6)];
-        el.style.left=(Math.random()*100)+"vw";
-        el.style.bottom=(-10-Math.random()*20)+"px";
-        el.style.animationDuration=(4+Math.random()*3)+"s";
-        el.style.fontSize=(14+Math.random()*18)+"px";
-        float.appendChild(el);
-        requestAnimationFrame(()=>{ el.style.opacity="1"; });
-        setTimeout(()=>el.remove(),8000);
-      }
-    }
+let wishes=[
+"To the most special person in my life ❤️",
+"I’m so proud of you ✨",
+"You inspire me every day 🌟",
+"This is your moment 💖"
+];
 
-    /***************
-     * Fireworks engine (canvas) — ✅ transparent so background photo shows
-     ***************/
-    const canvas=document.getElementById("fx");
-    const ctx=canvas.getContext("2d", { alpha: true });
-    let W,H,DPR;
-    let celebrationMode=false;
-    const particles=[];
+let i=0;
+function startTimer(){
+let t=20;
+let timer=setInterval(()=>{
+document.getElementById("timer").innerText=t;
+document.getElementById("wishText").innerText=wishes[i%wishes.length];
+i++;
+t--;
+if(t<0){
+clearInterval(timer);
+show("s2");
+}
+},1000);
+}
 
-    function resize(){
-      DPR=Math.min(2, window.devicePixelRatio||1);
-      W=canvas.width=Math.floor(innerWidth*DPR);
-      H=canvas.height=Math.floor(innerHeight*DPR);
-      canvas.style.width=innerWidth+"px";
-      canvas.style.height=innerHeight+"px";
-      ctx.setTransform(1,0,0,1,0,0);
-    }
-    addEventListener("resize", resize);
-    resize();
+function showYes(){ show("yesScreen"); }
+function showNo(){ show("noScreen"); }
 
-    function rand(a,b){ return a+Math.random()*(b-a); }
+/* Fireworks */
+const canvas=document.getElementById("fireworks");
+const ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
 
-    function spawnFirework(x,y){
-      const count=Math.floor(rand(45,80));
-      const speed=rand(2.0,5.2)*DPR;
-      for(let i=0;i<count;i++){
-        const ang=(Math.PI*2)*(i/count)+rand(-0.10,0.10);
-        particles.push({
-          x,y,
-          vx: Math.cos(ang)*speed*rand(0.55,1.10),
-          vy: Math.sin(ang)*speed*rand(0.55,1.10),
-          life: rand(48,78),
-          drag: rand(0.965,0.985),
-          g: 0.06*DPR,
-          hue: rand(0,360)
-        });
-      }
-    }
+let particles=[];
+function createFirework(){
+let x=Math.random()*canvas.width;
+let y=Math.random()*canvas.height*0.6;
+for(let i=0;i<50;i++){
+particles.push({
+x:x,
+y:y,
+vx:(Math.random()-0.5)*4,
+vy:(Math.random()-0.5)*4,
+life:60
+});
+}
+}
 
-    function bigBurst(){
-      spawnFirework(W*0.50, H*0.32);
-      setTimeout(()=>spawnFirework(W*0.58, H*0.36), 180);
-      setTimeout(()=>spawnFirework(W*0.42, H*0.38), 320);
-    }
+function animate(){
+ctx.clearRect(0,0,canvas.width,canvas.height);
+particles.forEach((p,index)=>{
+p.x+=p.vx;
+p.y+=p.vy;
+p.life--;
+ctx.fillStyle="rgba(255,200,200,"+(p.life/60)+")";
+ctx.beginPath();
+ctx.arc(p.x,p.y,2,0,Math.PI*2);
+ctx.fill();
+if(p.life<=0) particles.splice(index,1);
+});
+if(Math.random()<0.05) createFirework();
+requestAnimationFrame(animate);
+}
+animate();
+</script>
 
-    let t=0;
-    function loop(){
-      t++;
-
-      /* ✅ Keep canvas transparent while fading old particles */
-      ctx.globalCompositeOperation = "destination-out";
-      ctx.fillStyle = "rgba(0,0,0,0.18)";
-      ctx.fillRect(0,0,W,H);
-
-      /* ✅ Draw bright fireworks */
-      ctx.globalCompositeOperation = "lighter";
-
-      const rate = celebrationMode ? 14 : 28;
-      if(t % rate === 0){
-        spawnFirework(rand(W*0.15, W*0.85), rand(H*0.10, H*0.55));
-      }
-
-      for(let i=particles.length-1;i>=0;i--){
-        const p=particles[i];
-        p.vx*=p.drag;
-        p.vy = p.vy*p.drag + p.g;
-        p.x+=p.vx; p.y+=p.vy;
-        p.life--;
-
-        const a=Math.max(0, Math.min(1, p.life/60));
-        ctx.beginPath();
-        ctx.fillStyle=`hsla(${p.hue}, 90%, 70%, ${a})`;
-        ctx.arc(p.x,p.y,1.7*DPR,0,Math.PI*2);
-        ctx.fill();
-
-        if(p.life<=0) particles.splice(i,1);
-      }
-
-      requestAnimationFrame(loop);
-    }
-    loop();
-  </script>
 </body>
 </html>
